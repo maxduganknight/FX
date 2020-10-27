@@ -3,6 +3,12 @@ from argparse import ArgumentParser
 import smtplib, ssl
 from creds import gmail_password
 
+'''
+This script uses a python library called forex to pull an exchange rate daily and notify someone 
+via email if the exchange rate is above a certain threshold. I used this code to help decide when 
+to do a foreign currency exchange between USD and GBP.
+'''
+
 parser = ArgumentParser()
 parser.add_argument('-f', '--first_currency', help = 'currency to convert from', required = True)
 parser.add_argument('-s', '--second_currency', help = 'currency to convert to', required = True)
@@ -12,7 +18,7 @@ parser.add_argument('-r', '--rate_threshold', help = 'rate threshold above which
 
 def grab_exchange_rate(first_currency, second_currency):
 	c = CurrencyRates()
-	rate = c.get_rate(first_currency, second_currency)
+	rate = round(c.get_rate(first_currency, second_currency), 3)
 	return rate
 
 def write_email(first_currency, second_currency, rate_threshold, rate):
