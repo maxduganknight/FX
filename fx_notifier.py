@@ -31,6 +31,7 @@ def send_email(sender_email, receiver_email, message, password):
 	with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
 		server.login("automate.mdk@gmail.com", password)
 		server.sendmail(sender_email, emails, message)
+		print("Sent email to {email}".format(email = receiver_email))
 
 if __name__ == "__main__":
 	args = parser.parse_args()
@@ -43,3 +44,5 @@ if __name__ == "__main__":
 	if rate > rate_threshold:
 		message = write_email(first_currency, second_currency, rate_threshold, rate)
 		send_email(sender_email, emails, message, gmail_password)
+	else:
+		print("Rate did not meet threshold. Not sending an email.")
