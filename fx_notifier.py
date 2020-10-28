@@ -18,14 +18,15 @@ parser.add_argument('-r', '--rate_threshold', help = 'rate threshold above which
 
 def grab_exchange_rate(first_currency, second_currency):
 	c = CurrencyRates()
-	rate = round(c.get_rate(first_currency, second_currency), 3)
+	rate = round(c.get_rate(first_currency, second_currency), 4)
 	return rate
 
 def write_email(first_currency, second_currency, rate_threshold, rate):
 	message = """\
-	{first_currency}:{second_currency} is {rate}
+	Subject: {first_currency}:{second_currency} is {rate}
 
-	You are being notified because the rate is above {rate_threshold}.
+
+	{first_currency}:{second_currency} is {rate}. You are being notified because the rate is above {rate_threshold}.
 	""".format(first_currency = first_currency, second_currency = second_currency, 
 		rate = rate, rate_threshold = rate_threshold)
 	return message
@@ -46,9 +47,14 @@ if __name__ == "__main__":
 	emails = args.emails
 	rate_threshold = float(args.rate_threshold)
 	sender_email = "automate.mdk@gmail.com"
-	rate = grab_exchange_rate(first_currency, second_currency)
-	if rate > rate_threshold:
-		message = write_email(first_currency, second_currency, rate_threshold, rate)
-		send_email(sender_email, emails, message, gmail_password)
-	else:
-		print("Rate did not meet threshold. Not sending an email.")
+	rate = False
+	try:
+		rate = grab_exchange_rate(first_currency, second_currency)
+	except:
+		print("\nRates from forex package aren't available yet today. The package updates at 2pm BST. Try running again after that.")
+	if rate:
+		if rate > rate_threshold:
+			message = write_email(first_currency, second_currency, rate_threshold, rate)
+			send_email(sender_email, emails, message, gmail_password)
+		else:
+			print("Rate did not meet threshold. Not sending an email.")
