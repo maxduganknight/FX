@@ -2,6 +2,7 @@ from forex_python.converter import CurrencyRates
 from argparse import ArgumentParser 
 import smtplib, ssl
 from creds import gmail_password
+from time import sleep
 
 '''
 This script uses a python library called forex to pull an exchange rate daily and notify someone 
@@ -23,12 +24,9 @@ def grab_exchange_rate(first_currency, second_currency):
 
 def write_email(first_currency, second_currency, rate_threshold, rate):
 	message = """\
-	Subject: {first_currency}:{second_currency} is {rate}
-
-
-	{first_currency}:{second_currency} is {rate}. You are being notified because the rate is above {rate_threshold}.
+	Subject: {first_currency}:{second_currency} is {rate}.\n\n{first_currency}:{second_currency} is {rate}. You are being notified because the rate is above {rate_threshold}.\nDon't reply to this email.
 	""".format(first_currency = first_currency, second_currency = second_currency, 
-		rate = rate, rate_threshold = rate_threshold)
+	rate = rate, rate_threshold = rate_threshold)
 	return message
 
 def send_email(sender_email, receiver_email, message, password):
@@ -47,14 +45,9 @@ if __name__ == "__main__":
 	emails = args.emails
 	rate_threshold = float(args.rate_threshold)
 	sender_email = "automate.mdk@gmail.com"
-	rate = False
-	try:
-		rate = grab_exchange_rate(first_currency, second_currency)
-	except:
-		print("\nRates from forex package aren't available yet today. The package updates at 2pm BST. Try running again after that.")
-	if rate:
-		if rate > rate_threshold:
-			message = write_email(first_currency, second_currency, rate_threshold, rate)
-			send_email(sender_email, emails, message, gmail_password)
-		else:
-			print("Rate did not meet threshold. Not sending an email.")
+	rate = grab_exchange_rate(first_currency.upper(), second_currency.upper())
+	if rate > rate_threshold:
+		message = write_email(first_currency.upper(), second_currency.upper(), rate_threshold, rate)
+		send_email(sender_email, emails, message, gmail_password)
+	else:
+		print("Rate did not meet threshold. Not sending an email.")
